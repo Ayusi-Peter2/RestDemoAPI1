@@ -1,8 +1,5 @@
 package com.example.RestDemo.messages;
 
-import org.springframework.stereotype.Component;
-
-//@Component
 public class ClientMessage {
     private String status;
     private String content;

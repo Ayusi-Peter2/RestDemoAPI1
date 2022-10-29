@@ -7,9 +7,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.Transport;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -23,24 +27,62 @@ public class StudentController {
     //@RequestMapping(path ="api/v1/student")
     //@GetMapping
     //@DeleteMapping
-    //List<String> st = new ArrayList<String>();
+    List<Student>students=null;
+
     // st[0]="f";
+    @Autowired
+    MailSender mailSender;
 
    // @RequestMapping(path = "api/v1/student1", method = RequestMethod.GET)
-    @GetMapping("h")
+    @GetMapping("studentlist")
     public List<Student> getAllItems() {
         //LocalDate localDate=;
         return List.of(new Student(1L, "peterayusi200@gmail.com", LocalDate.now(), "Ayusi", 12), new Student(1L, "peterayusi200@gmail.com", LocalDate.of(2000, Month.DECEMBER, 6), "Ayusi", 12), new Student(1L, "peterayusi200@gmail.com", LocalDate.of(2000, Month.DECEMBER, 6), "Ayusi", 12));
         //System.out.println("Hello world");
 
     }
+    @GetMapping(path = "age/{age1}")
+    public ResponseEntity<Student> findStudentWithage(@PathVariable("age1") int age1)
+   // public Student findStudentWithage(PathVariable("age1") String age1)
 
-    @DeleteMapping(path ="posty/{id}")
-    public String postName(@PathVariable("id") String id) {
+    {
+        try {
+            Student ned = null;
+            students = new ArrayList<>();
+            students.add(new Student(1L, "peterayusi200@gmail.com", LocalDate.now(), "Ayusi", 12));
+            students.add(new Student(1L, "asava@gmail.com", LocalDate.now(), "Asava", 23));
+            students.add(new Student(1L, "vinny@gmail.com", LocalDate.now(), "Ndolwa", 12));
+            for (Student s : students) {
+                if (s.age == age1) {
+                    ned = s;
+                    //break;
+                } else {
+                    ned = null;
+                    //break;
+                }
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(ned);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @GetMapping("count")
+
+        public ResponseEntity<Integer>  numberOfStudents()
+        {
+            //new Object(students.size());
+            return ResponseEntity.status(HttpStatus.OK).body(students.size());
+        }
+
+    @DeleteMapping(path ="post/{id}")
+    public ResponseEntity<String> postName(@PathVariable("id") String id) {
         //LocalDate localDate=;
         //return List.of(new Student(1L, "peterayusi200@gmail.com", LocalDate.now(), "Ayusi", 12), new Student(1L, "peterayusi200@gmail.com", LocalDate.of(2000, Month.DECEMBER, 6), "Ayusi", 12), new Student(1L, "peterayusi200@gmail.com", LocalDate.of(2000, Month.DECEMBER, 6), "Ayusi", 12));
         //System.out.println("Hello world");
-        return "Go home";
+        return ResponseEntity.status(HttpStatus.OK).body(id+" deleted");
     }
         // @GetMapping(value = "api/v1/greetings")
     //@GetMapping
@@ -52,7 +94,7 @@ public class StudentController {
 
          if(email.isEmpty())
          {
-             return ResponseEntity.status(HttpStatus.OK).body(List.of());
+             return ResponseEntity.status(HttpStatus.OK).body(null);
          }
          else {
              Student student1 = new Student(1L, "", LocalDate.now(), "Ayusi", 12);
@@ -91,8 +133,33 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.CREATED).body(new ClientMessage("success","Student created successfully"));
 
     }
+@GetMapping(path = "mail")
+public ResponseEntity<String> sendSimpleMail()
+{
+   // @Autowired  JavaMailSender javaMailSender;
+    // Try block to check for exceptions
+    try {
 
+        // Creating a simple mail message
+        SimpleMailMessage mailMessage
+                = new SimpleMailMessage();
 
+        // Setting up necessary details
+        mailMessage.setFrom("peterayusi200@gmail.com");
+        mailMessage.setTo("peterayusi200@gmail.com");
+        mailMessage.setText("Testing gmail sending capability");
+        mailMessage.setSubject("Email from spring boot");
+        mailSender.send(mailMessage);
+        // Sending the mail
+        //Transport.send(mailMessage);
+        return ResponseEntity.status(HttpStatus.OK).body("Mail Sent Successfully...");
+    }
+
+    // Catch block to handle the exceptions
+    catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while Sending Mail "+e.getLocalizedMessage());
+    }
+}
 
 
 }
